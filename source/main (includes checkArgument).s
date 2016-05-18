@@ -6,6 +6,59 @@ _start:
 
 .section .text
 
+checkArgument:
+  CALoop:
+  ldr r3, =commandprompt
+
+  bl	readStringLength
+  bl	WriteStringUART
+
+  ldr r0, =commandpromptbuffer
+  mov r1, #256
+  bl ReadLineUART
+  mov r1, r0
+  ldr r0, =commandpromptbuffer
+
+  cmp r1, #3
+  bgt checkNaA
+
+  checkAND:
+  ldrb r1, [r0]
+  cmp r1, #65
+  bne checkOR
+
+  ldrb r1, [r0, #1]
+  cmp r1, #78
+  bne checkOR
+  ldrb r1, [r0, #2]
+  cmp r1, #68
+  bne checkNaA
+  ldrb r1, [r0, #3]
+  cmp r1, #0
+  moveq r7, #1
+  beq done
+  bne checkNaA
+
+  checkOR:
+  ldrb r1, [r0]
+  cmp r1, #79
+  bne checkNaA
+  ldrb r1, [r0, #1]
+  cmp r1, #82
+  bne checkNaA
+  ldrb r1, [r0, #2]
+  cmp r1, #0
+  moveq r7, #2
+  beq done
+
+  checkNaA:
+  ldr r3, =wrongcommand
+  mov r0, r3
+  bl readStringLength
+  bl	WriteStringUART
+  b CALoop
+  done:
+  mov pc, lr
 
 //r3 is always going to contain the address of string
 readStringLength:
